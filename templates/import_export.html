@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}Import / Export - DATA University{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <h1 class="text-3xl font-bold text-gray-800">Import / Export dữ liệu</h1>
+    <p class="text-gray-600 mt-2">Tải lên file Excel/CSV hoặc xuất dữ liệu về máy</p>
+</div>
+
+<!-- Import Section -->
+<div class="bg-white rounded-lg shadow p-6 mb-6">
+    <h2 class="text-xl font-bold text-gray-800 mb-4">📥 Import dữ liệu</h2>
+    <p class="text-gray-600 mb-4">Chọn file Excel (.xlsx) hoặc CSV để import thêm vào database</p>
+
+    <form method="POST" enctype="multipart/form-data" class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Khu vực</label>
+                <select name="target" id="importTarget" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                    <option value="mn">University Miền Nam</option>
+                    <option value="mb">University Miền Bắc</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">File</label>
+                <input type="file" name="file" accept=".xlsx,.csv"
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+            </div>
+        </div>
+        <button type="submit" id="importBtn"
+                class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg font-medium transition">
+            Import dữ liệu
+        </button>
+    </form>
+
+    <div class="mt-6 p-4 bg-indigo-50 rounded-lg">
+        <p class="text-sm text-indigo-800">
+            <strong>Lưu ý:</strong> File nên có các cột trùng với file Export (STT, Tên trường học, Hệ, Tiến độ...).
+            Khu vực MN/MB sẽ được suy ra tự động từ cột TP/Tỉnh nếu có.
+        </p>
+    </div>
+</div>
+
+<!-- Export Section -->
+<div class="bg-white rounded-lg shadow p-6">
+    <h2 class="text-xl font-bold text-gray-800 mb-4">📤 Export dữ liệu</h2>
+    <p class="text-gray-600 mb-4">Xuất dữ liệu từ database về file Excel</p>
+    <div class="grid grid-cols-2 gap-4">
+        <a href="{{ url_for('export_data', region='mn') }}"
+           class="bg-green-600 hover:bg-green-700 text-white px-6 py-4 rounded-lg font-medium transition text-center block">
+            <span class="text-2xl block mb-2">🎓</span>Export University Miền Nam
+        </a>
+        <a href="{{ url_for('export_data', region='mb') }}"
+           class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-4 rounded-lg font-medium transition text-center block">
+            <span class="text-2xl block mb-2">🎓</span>Export University Miền Bắc
+        </a>
+    </div>
+</div>
+
+<script>
+document.getElementById('importBtn').addEventListener('click', function() {
+    const target = document.getElementById('importTarget').value;  // "mn" or "mb"
+    this.closest('form').action = `/import/${target}`;
+});
+</script>
+{% endblock %}

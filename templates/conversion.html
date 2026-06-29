@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Tỷ Lệ Chuyển Đổi - DATA University{% endblock %}
+
+{% block content %}
+<div class="mb-6 flex items-start justify-between flex-wrap gap-4">
+    <div>
+        <h1 class="text-3xl font-bold text-gray-800">Tỷ Lệ Chuyển Đổi</h1>
+        <p class="text-gray-600 mt-2">
+            Thống kê màn hình / số trường theo từng giai đoạn của phễu bán hàng.
+            <span class="ml-1 inline-block px-2 py-0.5 rounded-full bg-teal-100 text-teal-700 text-xs font-semibold">
+                Cập nhật tuần {{ week }} · {{ updated }}
+            </span>
+        </p>
+    </div>
+    <form method="GET" class="flex items-center gap-2 flex-wrap">
+        <label class="text-sm font-medium text-gray-700">Hệ:</label>
+        <select name="level" onchange="this.form.submit()"
+                class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+            <option value="" {% if not level %}selected{% endif %}>Tất cả</option>
+            {% for l in levels %}<option value="{{ l }}" {% if level == l %}selected{% endif %}>{{ l }}</option>{% endfor %}
+        </select>
+        <label class="text-sm font-medium text-gray-700 ml-2">Khu vực:</label>
+        <select name="region" onchange="this.form.submit()"
+                class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+            <option value="" {% if not region %}selected{% endif %}>Tất cả (MN + MB)</option>
+            <option value="MN" {% if region == 'MN' %}selected{% endif %}>Miền Nam</option>
+            <option value="MB" {% if region == 'MB' %}selected{% endif %}>Miền Bắc</option>
+        </select>
+    </form>
+</div>
+
+<div class="bg-white rounded-xl shadow p-6">
+    <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-bold text-gray-800">Bảng chuyển đổi theo giai đoạn</h2>
+        <span class="inline-block w-3 h-3 rounded-full bg-indigo-500"></span>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="min-w-full text-sm border border-gray-200">
+            <thead>
+                <tr class="bg-gray-50 text-gray-600">
+                    <th class="px-4 py-3 text-left font-semibold uppercase text-xs tracking-wider border-b border-gray-200">Chỉ tiêu</th>
+                    {% for s in stages %}
+                    <th class="px-4 py-3 text-center font-semibold uppercase text-xs tracking-wider border-b border-gray-200">{{ s }}</th>
+                    {% endfor %}
+                    <th class="px-4 py-3 text-center font-semibold uppercase text-xs tracking-wider border-b border-gray-200 bg-gray-100">Tổng</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                {% set rows = [('Đơn vị màn hình', 'screens'), ('Số lượng trường tương ứng', 'schools')] %}
+                {% for label, key in rows %}
+                <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-3 font-medium text-gray-800">{{ label }}</td>
+                    {% set ns = namespace(total=0) %}
+                    {% for s in stages %}
+                        {% set ns.total = ns.total + table[s][key] %}
+                        <td class="px-4 py-3 text-center {{ 'text-gray-800' if table[s][key] else 'text-gray-300' }}">{{ table[s][key] }}</td>
+                    {% endfor %}
+                    <td class="px-4 py-3 text-center font-bold text-gray-900 bg-gray-50">{{ ns.total }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<p class="text-xs text-gray-400 mt-4">
+    * "Đơn vị màn hình" = tổng số lượng màn hình; "Số lượng trường tương ứng" = số trường ở mỗi giai đoạn.
+    Dữ liệu tính trực tiếp từ database hiện tại nên tự cập nhật theo tuần thực tế.
+</p>
+{% endblock %}

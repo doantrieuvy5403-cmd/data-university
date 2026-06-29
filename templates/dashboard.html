@@ -1,0 +1,245 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - DATA University{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <h1 class="text-3xl font-bold text-gray-800">Dashboard</h1>
+    <p class="text-gray-600 mt-2">Thống kê và phân tích database trường học</p>
+</div>
+
+<!-- KPI cards -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+    <div class="bg-white rounded-xl shadow p-5"><p class="text-sm text-gray-500">Tổng số trường</p><p id="kpiTotal" class="text-3xl font-bold text-indigo-700 mt-1">–</p></div>
+    <div class="bg-white rounded-xl shadow p-5"><p class="text-sm text-gray-500">Done</p><p id="kpiDone" class="text-3xl font-bold text-green-600 mt-1">–</p></div>
+    <div class="bg-white rounded-xl shadow p-5"><p class="text-sm text-gray-500">Miền Nam / Miền Bắc</p><p id="kpiRegion" class="text-3xl font-bold text-gray-800 mt-1">–</p></div>
+    <div class="bg-white rounded-xl shadow p-5"><p class="text-sm text-gray-500">Tiến độ chung</p><p id="kpiProgress" class="text-3xl font-bold text-amber-600 mt-1">–</p></div>
+</div>
+
+<!-- Screen target donuts -->
+<div class="bg-white rounded-xl shadow p-6 mb-6">
+    <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-bold text-gray-800"><span id="screenTitle">Mục tiêu màn hình</span> — Tiến độ màn hình</h2>
+        <span class="text-xs text-gray-500">Đã thực hiện = tổng màn các giai đoạn Plan B → Done (không tính Research)</span>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="text-center"><canvas id="scMB" height="180"></canvas><p id="scMBcap" class="text-xs mt-2"></p></div>
+        <div class="text-center"><canvas id="scMN" height="180"></canvas><p id="scMNcap" class="text-xs mt-2"></p></div>
+        <div class="text-center"><canvas id="scSUM" height="180"></canvas><p id="scSUMcap" class="text-xs mt-2"></p></div>
+    </div>
+</div>
+
+<!-- Weekly Growth -->
+<div class="bg-white rounded-xl shadow p-6 mb-6">
+    <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-bold text-gray-800">Tỉ lệ tăng trưởng theo tuần — Màn hình</h2>
+        <span class="text-xs text-gray-500">Trục tung: số lượng màn hình</span>
+    </div>
+    <canvas id="weeklyChart" height="90"></canvas>
+    <p id="weeklyHint" class="text-xs text-gray-400 mt-3 hidden">
+        Hiện mới có dữ liệu của tuần này. Mỗi tuần hệ thống sẽ tự ghi nhận thêm 1 điểm để tạo đường tăng trưởng.
+    </p>
+</div>
+
+<div class="bg-white rounded-xl shadow p-6 mb-6">
+    <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-bold text-gray-800">Tỉ lệ tăng trưởng theo tuần — Số trường</h2>
+        <span class="text-xs text-gray-500">Trục tung: số lượng trường</span>
+    </div>
+    <canvas id="weeklySchoolChart" height="90"></canvas>
+</div>
+
+<!-- Person Workload Table -->
+<div class="bg-white rounded-xl shadow p-6 mb-6">
+    <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-bold text-gray-800">Khối lượng công việc theo người</h2>
+        <span class="text-xs text-gray-500">Số trường theo từng giai đoạn + tiến độ màn hình</span>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="min-w-full text-sm">
+            <thead class="bg-gray-50 text-gray-600">
+                <tr>
+                    <th class="px-4 py-3 text-left font-semibold uppercase text-xs tracking-wider">Cá nhân</th>
+                    <th class="px-4 py-3 text-center font-semibold uppercase text-xs tracking-wider">Research</th>
+                    <th class="px-4 py-3 text-center font-semibold uppercase text-xs tracking-wider">Plan B</th>
+                    <th class="px-4 py-3 text-center font-semibold uppercase text-xs tracking-wider">Plan A</th>
+                    <th class="px-4 py-3 text-center font-semibold uppercase text-xs tracking-wider">Deal</th>
+                    <th class="px-4 py-3 text-center font-semibold uppercase text-xs tracking-wider">Done</th>
+                    <th class="px-4 py-3 text-center font-semibold uppercase text-xs tracking-wider">Tổng</th>
+                    <th class="px-4 py-3 text-center font-semibold uppercase text-xs tracking-wider bg-indigo-50">Màn (đạt / mục tiêu)</th>
+                    <th class="px-4 py-3 text-left font-semibold uppercase text-xs tracking-wider w-56">Tiến độ màn hình</th>
+                </tr>
+            </thead>
+            <tbody id="personTableBody" class="divide-y divide-gray-100">
+                <tr><td colspan="9" class="px-4 py-8 text-center text-gray-400">Đang tải...</td></tr>
+            </tbody>
+            <tfoot class="bg-gray-50 font-semibold text-gray-800">
+                <tr id="personTableFoot"></tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
+
+<!-- Distribution charts -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+    <div class="bg-white rounded-xl shadow p-6">
+        <h2 class="text-lg font-bold text-gray-800 mb-4">Phân bố theo Hệ đào tạo</h2>
+        <canvas id="levelChart" height="160"></canvas>
+    </div>
+    <div class="bg-white rounded-xl shadow p-6">
+        <h2 class="text-lg font-bold text-gray-800 mb-4">Tình trạng hợp tác</h2>
+        <canvas id="coopChart" height="160"></canvas>
+    </div>
+    <div class="bg-white rounded-xl shadow p-6">
+        <h2 class="text-lg font-bold text-gray-800 mb-4">Sức mạnh thương hiệu (Xếp loại)</h2>
+        <canvas id="brandChart" height="160"></canvas>
+    </div>
+    <div class="bg-white rounded-xl shadow p-6">
+        <h2 class="text-lg font-bold text-gray-800 mb-4">CSVC</h2>
+        <canvas id="csvcChart" height="160"></canvas>
+    </div>
+</div>
+
+<div class="bg-white rounded-xl shadow p-6 mb-6">
+    <h2 class="text-lg font-bold text-gray-800 mb-4">Top 10 Tỉnh/Thành theo số trường</h2>
+    <canvas id="cityChart" height="90"></canvas>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+<script>
+Chart.register(ChartDataLabels);
+Chart.defaults.set('plugins.datalabels', { color: '#374151', font: { weight: 'bold' } });
+
+function progressColor(pct) {
+    if (pct >= 75) return '#10b981';
+    if (pct >= 50) return '#6366f1';
+    if (pct >= 25) return '#f59e0b';
+    return '#ef4444';
+}
+
+fetch('/api/stats')
+    .then(r => r.json())
+    .then(data => {
+        // KPIs
+        const s = data.summary;
+        document.getElementById('kpiTotal').textContent = s.total;
+        document.getElementById('kpiDone').textContent = s.done;
+        document.getElementById('kpiRegion').textContent = s.total_mn + ' / ' + s.total_mb;
+        document.getElementById('kpiProgress').textContent = s.overall_progress + '%';
+
+        // Screen donuts
+        function screenDonut(canvasId, capId, title, done, target) {
+            const filled = Math.min(done, target);
+            const remaining = Math.max(0, target - done);
+            const pctDone = target ? (done / target * 100) : 0;
+            const pctRemain = target ? (remaining / target * 100) : 0;
+            new Chart(document.getElementById(canvasId), {
+                type: 'doughnut',
+                data: { labels: ['Đã thực hiện', 'Còn lại'],
+                    datasets: [{ data: [filled, remaining], backgroundColor: ['#6366f1', '#e5e7eb'], borderWidth: 0 }] },
+                options: { responsive: true, cutout: '60%',
+                    plugins: {
+                        legend: { position: 'bottom', labels: { font: { size: 11 } } },
+                        title: { display: true, text: title, font: { size: 14, weight: 'bold' } },
+                        tooltip: { callbacks: { label: c => `${c.label}: ${c.raw} màn` } },
+                        datalabels: { color: ctx => ctx.dataIndex === 0 ? '#fff' : '#6b7280', font: { weight: 'bold', size: 12 }, formatter: v => v ? v : '' }
+                    } }
+            });
+            document.getElementById(capId).innerHTML =
+                `<span class="text-indigo-600 font-semibold">Đã: ${done} màn (${pctDone.toFixed(1)}%)</span> · ` +
+                `<span class="text-gray-500">Còn lại: ${remaining} màn (${pctRemain.toFixed(1)}%)</span><br>` +
+                `<span class="text-gray-400">Mục tiêu: ${target} màn</span>`;
+        }
+        const sp = data.screen_progress;
+        if (sp) {
+            document.getElementById('screenTitle').textContent = sp.name;
+            screenDonut('scMB', 'scMBcap', 'Miền Bắc', sp.MB.done, sp.MB.target);
+            screenDonut('scMN', 'scMNcap', 'Miền Nam', sp.MN.done, sp.MN.target);
+            screenDonut('scSUM', 'scSUMcap', 'Tổng MN + MB', sp.SUM.done, sp.SUM.target);
+        }
+
+        // Weekly growth
+        const wk = data.weekly_growth;
+        if (wk.labels.length <= 1) document.getElementById('weeklyHint').classList.remove('hidden');
+        function weeklyLine(canvasId, suffix, yLabel) {
+            const series = [
+                { label: 'Plan B', key: 'plan_b', color: '#f97316' },
+                { label: 'Plan A', key: 'plan_a', color: '#f59e0b' },
+                { label: 'Deal', key: 'deal', color: '#6366f1' },
+                { label: 'Done', key: 'done', color: '#10b981' },
+            ];
+            new Chart(document.getElementById(canvasId), {
+                type: 'line',
+                data: { labels: wk.labels, datasets: series.map(x => ({
+                    label: x.label, data: wk[x.key + suffix], borderColor: x.color, backgroundColor: x.color,
+                    tension: 0.3, pointRadius: 4, pointHoverRadius: 6, borderWidth: 2, fill: false })) },
+                options: { responsive: true, interaction: { mode: 'index', intersect: false },
+                    scales: { y: { beginAtZero: true, title: { display: true, text: yLabel } }, x: { title: { display: true, text: 'Tuần' } } },
+                    plugins: { legend: { position: 'bottom' }, datalabels: { align: 'top', anchor: 'end', font: { size: 10, weight: 'bold' } } } }
+            });
+        }
+        weeklyLine('weeklyChart', '', 'Số lượng màn hình');
+        weeklyLine('weeklySchoolChart', '_schools', 'Số lượng trường');
+
+        // Person table
+        const stages = data.funnel_stages;
+        const tbody = document.getElementById('personTableBody');
+        tbody.innerHTML = '';
+        const totals = { Research: 0, 'Plan B': 0, 'Plan A': 0, Deal: 0, Done: 0, total: 0, sc: 0, tgt: 0 };
+        function progressBar(pct) {
+            const col = progressColor(pct);
+            return `<div class="flex items-center gap-2">
+                <div class="flex-1 bg-gray-100 rounded-full h-2.5 overflow-hidden">
+                    <div class="h-2.5 rounded-full" style="width:${Math.min(pct,100)}%;background:${col}"></div></div>
+                <span class="text-xs font-semibold w-12 text-right" style="color:${col}">${pct}%</span></div>`;
+        }
+        data.person_progress.forEach(p => {
+            const cells = stages.map(st => {
+                totals[st] += p.stages[st];
+                const v = p.stages[st];
+                return `<td class="px-4 py-3 text-center ${v ? 'text-gray-800' : 'text-gray-300'}">${v}</td>`;
+            }).join('');
+            totals.total += p.total; totals.sc += p.screens; totals.tgt += p.target;
+            tbody.insertAdjacentHTML('beforeend', `
+                <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-3 font-medium text-gray-900">${p.person}</td>
+                    ${cells}
+                    <td class="px-4 py-3 text-center font-bold text-gray-900">${p.total}</td>
+                    <td class="px-4 py-3 text-center bg-indigo-50/40"><span class="font-semibold text-indigo-700">${p.screens}</span> <span class="text-gray-400">/ ${p.target}</span></td>
+                    <td class="px-4 py-3">${progressBar(p.progress_screens)}</td>
+                </tr>`);
+        });
+        const pctTotal = totals.tgt ? Math.round(totals.sc / totals.tgt * 1000) / 10 : 0;
+        document.getElementById('personTableFoot').innerHTML = `
+            <td class="px-4 py-3">Tổng cộng</td>
+            ${stages.map(st => `<td class="px-4 py-3 text-center">${totals[st]}</td>`).join('')}
+            <td class="px-4 py-3 text-center">${totals.total}</td>
+            <td class="px-4 py-3 text-center text-indigo-700">${totals.sc} / ${Math.round(totals.tgt)}</td>
+            <td class="px-4 py-3 text-xs text-indigo-700">Toàn đội: ${pctTotal}%</td>`;
+
+        // Distribution charts
+        function barChart(id, items, color) {
+            new Chart(document.getElementById(id), {
+                type: 'bar',
+                data: { labels: items.map(i => i.label), datasets: [{ label: 'Số trường', data: items.map(i => i.count), backgroundColor: color }] },
+                options: { responsive: true, scales: { y: { beginAtZero: true } },
+                    plugins: { legend: { display: false }, datalabels: { anchor: 'end', align: 'top' } } }
+            });
+        }
+        function pieChart(id, items, colors) {
+            new Chart(document.getElementById(id), {
+                type: 'doughnut',
+                data: { labels: items.map(i => i.label), datasets: [{ data: items.map(i => i.count), backgroundColor: colors, borderWidth: 0 }] },
+                options: { responsive: true, cutout: '55%', plugins: { legend: { position: 'bottom' }, datalabels: { color: '#fff', font: { weight: 'bold' } } } }
+            });
+        }
+        pieChart('levelChart', data.level, ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6']);
+        pieChart('coopChart', data.cooperation, ['#10b981', '#94a3b8']);
+        barChart('brandChart', data.brand, '#8b5cf6');
+        barChart('csvcChart', data.csvc, '#0ea5e9');
+        barChart('cityChart', data.city, '#6366f1');
+    });
+</script>
+{% endblock %}
