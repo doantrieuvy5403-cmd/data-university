@@ -16,7 +16,7 @@ services:
           name: data-university-db
           property: connectionString
       - key: PYTHON_VERSION
-        value: 3.11.9
+        value: "3.11.9"
       - key: SECRET_KEY
         generateValue: true
       - key: ADMIN_USERNAME
