@@ -742,6 +742,11 @@ def import_data(region):
             df = pd.read_excel(file)
         label_to_field = {label: field for field, label in EXPORT_COLUMNS}
         df = df.rename(columns=label_to_field)
+        
+        import_mode = request.form.get('import_mode', 'append')
+        if import_mode == 'replace':
+            UniversityRecord.query.filter_by(region=region).delete()
+            
         count = 0
         for _, row in df.iterrows():
             rec = UniversityRecord(region=region)
