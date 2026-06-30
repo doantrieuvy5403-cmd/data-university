@@ -85,11 +85,10 @@ SEED_COLUMNS = {
     3: 'status', 4: 'led_status', 5: 'approach_time',
     6: 'city', 7: 'ward', 8: 'level', 9: 'school_name', 10: 'address',
     11: 'contact_info',
-    12: 'price_range', 13: 'csvc', 14: 'student_count', 15: 'brand_strength',
-    16: 'other_unit', 17: 'other_unit_screens', 18: 'num_elevators',
+    13: 'csvc', 14: 'student_count', 15: 'brand_strength',
+    18: 'num_elevators',
     19: 'total_screens', 20: 'screens_before_elevator', 21: 'screens_in_elevator',
     22: 'screens_stairs', 23: 'gp_count', 24: 'led_screens',
-    25: 'p9000', 26: 'p6000',
 }
 INT_FIELDS = ['stt', 'other_unit_screens', 'num_elevators', 'total_screens',
               'screens_before_elevator', 'screens_in_elevator', 'screens_stairs',
@@ -458,12 +457,9 @@ def _record_from_form(rec, form):
     rec.school_name = form.get('school_name') or None
     rec.address = form.get('address') or None
     rec.contact_info = form.get('contact_info') or None
-    rec.price_range = form.get('price_range') or None
     rec.csvc = form.get('csvc') or None
     rec.student_count = form.get('student_count') or None
     rec.brand_strength = form.get('brand_strength') or None
-    rec.other_unit = form.get('other_unit') or None
-    rec.other_unit_screens = form.get('other_unit_screens', type=int)
     rec.num_elevators = form.get('num_elevators', type=int)
     rec.total_screens = form.get('total_screens', type=int)
     rec.screens_before_elevator = form.get('screens_before_elevator', type=int)
@@ -471,9 +467,6 @@ def _record_from_form(rec, form):
     rec.screens_stairs = form.get('screens_stairs', type=int)
     rec.gp_count = form.get('gp_count', type=int)
     rec.led_screens = form.get('led_screens', type=int)
-    rec.p9000 = form.get('p9000', type=int)
-    rec.p6000 = form.get('p6000', type=int)
-    rec.must_have = form.get('must_have') or None
     rec.region = _derive_region(rec.city)
     return rec
 
@@ -686,33 +679,26 @@ EXPORT_COLUMNS = [
     ('cooperation_status', 'Tình trạng hợp tác'),
     ('status', 'Tiến độ LCD/DP/GP/DPS'),
     ('led_status', 'Tiến độ LED'),
-    ('approach_time', 'Thời gian tiếp cận'),
     ('city', 'TP/Tỉnh'),
     ('ward', 'Xã/Phường'),
     ('level', 'Hệ'),
     ('school_name', 'Tên trường học'),
     ('address', 'Địa chỉ'),
-    ('contact_info', 'Thông tin liên hệ'),
-    ('price_range', 'Giá bán'),
     ('csvc', 'CSVC'),
     ('student_count', 'Số lượng sinh viên'),
     ('brand_strength', 'Sức mạnh thương hiệu'),
-    ('other_unit', 'Đơn vị khác'),
-    ('other_unit_screens', 'SL màn đơn vị khác'),
     ('num_elevators', 'Số lượng thang máy'),
     ('total_screens', 'Tổng SL màn hình'),
     ('screens_before_elevator', 'SL màn trước thang'),
     ('screens_in_elevator', 'SL màn trong thang'),
-    ('screens_stairs', 'SL màn thang bộ/trên cột'),
+    ('screens_stairs', 'SL màn thang bộ'),
     ('gp_count', 'SL GP'),
     ('led_screens', 'SL màn LED'),
-    ('p9000', 'P9000'),
-    ('p6000', 'P6000'),
-    ('must_have', 'Must have'),
+    ('contact_info', 'Thông tin liên hệ'),
 ]
-IMPORT_INT_FIELDS = ['stt', 'other_unit_screens', 'num_elevators', 'total_screens',
+IMPORT_INT_FIELDS = ['stt', 'num_elevators', 'total_screens',
                      'screens_before_elevator', 'screens_in_elevator', 'screens_stairs',
-                     'gp_count', 'led_screens', 'p9000', 'p6000']
+                     'gp_count', 'led_screens']
 
 
 @app.route('/export/<region>')
@@ -782,8 +768,18 @@ def import_data(region):
         flash(f'Đã import {count} bản ghi', 'success')
     except Exception as e:
         db.session.rollback()
-        flash(f'Lỗi import: {e}', 'error')
-    return redirect(url_for('database', region=region.lower()))
+        flash(f'Lỗi import: {str(e)}', 'error')
+    return redirect(url_for('import_export'))
+
+
+@app.route('/api/migrate')
+def api_migrate():
+    try:
+        db.session.execute(db.text('ALTER TABLE university_record ADD COLUMN contact_info VARCHAR(255);'))
+        db.session.commit()
+        return "Migration successful! Contact Info column added."
+    except Exception as e:
+        return f"Migration failed (Column might already exist): {str(e)}"
 
 
 @app.route('/import-export')

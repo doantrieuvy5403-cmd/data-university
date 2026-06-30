@@ -35,16 +35,14 @@
             {{ select('Hệ', 'level', record.level if record else '', ['Đại học', 'Cao đẳng', 'Học viện']) }}
             {{ field('Người phụ trách', 'person_in_charge', record.person_in_charge if record else '') }}
             {{ select('Tình trạng hợp tác', 'cooperation_status', record.cooperation_status if record else '', ['Đã hợp tác', 'Chưa hợp tác']) }}
-            {{ field('Thời gian tiếp cận', 'approach_time', record.approach_time if record else '', 'text', 'MM/YYYY') }}
         </div>
     </div>
 
     <div>
         <h2 class="text-lg font-bold text-gray-800 mb-3">Tiến độ</h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             {{ select('Tiến độ LCD/DP/GP/DPS', 'status', record.status if record else '', ['Research', 'Plan B', 'Plan A', 'Deal', 'Done', 'Code', 'Fail', 'Pending', 'Lost', 'Reject']) }}
             {{ select('Tiến độ LED', 'led_status', record.led_status if record else '', ['Research', 'Plan B', 'Plan A', 'Deal', 'Done', 'Code', 'Fail']) }}
-            {{ select('Must have', 'must_have', record.must_have if record else '', ['Must have']) }}
         </div>
     </div>
 
@@ -61,12 +59,9 @@
     <div>
         <h2 class="text-lg font-bold text-gray-800 mb-3">Đánh giá</h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {{ field('Giá bán', 'price_range', record.price_range if record else '') }}
             {{ select('CSVC', 'csvc', record.csvc if record else '', ['Premium', 'Standard', 'Substandard']) }}
             {{ select('Số lượng sinh viên', 'student_count', record.student_count if record else '', ['High', 'Middle', 'Low']) }}
             {{ select('Sức mạnh thương hiệu', 'brand_strength', record.brand_strength if record else '', ['A', 'B+', 'B', 'C+', 'C']) }}
-            {{ field('Đơn vị khác', 'other_unit', record.other_unit if record else '') }}
-            {{ field('SL màn đơn vị khác', 'other_unit_screens', record.other_unit_screens if record else '', 'number') }}
         </div>
     </div>
 
@@ -80,8 +75,6 @@
             {{ field('SL màn thang bộ/trên cột', 'screens_stairs', record.screens_stairs if record else '', 'number') }}
             {{ field('SL GP', 'gp_count', record.gp_count if record else '', 'number') }}
             {{ field('SL màn LED', 'led_screens', record.led_screens if record else '', 'number') }}
-            {{ field('P9000', 'p9000', record.p9000 if record else '', 'number') }}
-            {{ field('P6000', 'p6000', record.p6000 if record else '', 'number') }}
         </div>
     </div>
 

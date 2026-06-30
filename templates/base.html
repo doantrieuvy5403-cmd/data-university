@@ -31,16 +31,25 @@
                 </a>
 
                 {% set cur_reg = request.view_args.get('region') if request.endpoint == 'database' else None %}
+                {% set cur_type = request.args.get('type', 'lcd') %}
                 <div class="pt-4 pb-2">
                     <p class="text-xs text-indigo-400 uppercase font-semibold">Database trường học</p>
                 </div>
-                <a href="{{ url_for('database', region='mn') }}"
-                   class="block px-4 py-3 rounded-lg hover:bg-indigo-800 transition {% if cur_reg == 'mn' %}bg-indigo-800{% endif %}">
-                    <span class="font-medium">🎓 University Miền Nam</span>
+                <a href="{{ url_for('database', region='mn', type='lcd') }}"
+                   class="block px-4 py-3 rounded-lg hover:bg-indigo-800 transition {% if cur_reg == 'mn' and cur_type == 'lcd' %}bg-indigo-800{% endif %}">
+                    <span class="font-medium text-sm">🎓 Miền Nam (Màn hình + GP)</span>
                 </a>
-                <a href="{{ url_for('database', region='mb') }}"
-                   class="block px-4 py-3 rounded-lg hover:bg-indigo-800 transition {% if cur_reg == 'mb' %}bg-indigo-800{% endif %}">
-                    <span class="font-medium">🎓 University Miền Bắc</span>
+                <a href="{{ url_for('database', region='mn', type='led') }}"
+                   class="block px-4 py-3 rounded-lg hover:bg-indigo-800 transition {% if cur_reg == 'mn' and cur_type == 'led' %}bg-indigo-800{% endif %}">
+                    <span class="font-medium text-sm">🎓 Miền Nam (LED)</span>
+                </a>
+                <a href="{{ url_for('database', region='mb', type='lcd') }}"
+                   class="block px-4 py-3 rounded-lg hover:bg-indigo-800 transition {% if cur_reg == 'mb' and cur_type == 'lcd' %}bg-indigo-800{% endif %}">
+                    <span class="font-medium text-sm">🎓 Miền Bắc (Màn hình + GP)</span>
+                </a>
+                <a href="{{ url_for('database', region='mb', type='led') }}"
+                   class="block px-4 py-3 rounded-lg hover:bg-indigo-800 transition {% if cur_reg == 'mb' and cur_type == 'led' %}bg-indigo-800{% endif %}">
+                    <span class="font-medium text-sm">🎓 Miền Bắc (LED)</span>
                 </a>
 
                 <div class="pt-4 pb-2">

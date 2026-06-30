@@ -89,22 +89,33 @@
     <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
+                {% set view_type = request.args.get('type', 'lcd') %}
                 <tr>
                     <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">STT</th>
-                    <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tên trường</th>
-                    <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Hệ</th>
-                    <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Phường/Xã</th>
-                    <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Thành phố</th>
-                    <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Liên hệ</th>
-                    <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tiến độ</th>
-                    <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Hợp tác</th>
                     <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Phụ trách</th>
+                    <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Hợp tác</th>
+                    <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tiến độ {% if view_type == 'led' %}LED{% else %}LCD{% endif %}</th>
+                    <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Thành phố</th>
+                    <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Phường/Xã</th>
+                    <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Hệ</th>
+                    <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tên trường</th>
+                    <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Địa chỉ</th>
                     <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">CSVC</th>
+                    <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">SV</th>
                     <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Brand</th>
+                    
+                    {% if view_type == 'led' %}
+                    <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">SL MÀN LED</th>
+                    {% else %}
                     <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Thang máy</th>
-                    <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Trong thang</th>
-                    <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">LED</th>
                     <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tổng màn</th>
+                    <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Trước thang</th>
+                    <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Trong thang</th>
+                    <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Thang bộ/Cột</th>
+                    <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">SL GP</th>
+                    {% endif %}
+                    
+                    <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Liên hệ</th>
                     <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Thao tác</th>
                 </tr>
             </thead>
@@ -112,36 +123,46 @@
                 {% for record in records.items %}
                 <tr class="hover:bg-gray-50">
                     <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-900">{{ record.stt or '' }}</td>
-                    <td class="px-3 py-3 text-sm text-gray-900 font-medium max-w-xs">{{ record.school_name or '' }}</td>
-                    <td class="px-3 py-3 text-sm text-gray-900">{{ record.level or '' }}</td>
-                    <td class="px-3 py-3 text-sm text-gray-900">{{ record.ward or '' }}</td>
-                    <td class="px-3 py-3 text-sm text-gray-900">{{ record.city or '' }}</td>
-                    <td class="px-3 py-3 text-sm text-gray-900 max-w-[120px] truncate" title="{{ record.contact_info or '' }}">{{ record.contact_info or '' }}</td>
-                    <td class="px-3 py-3 text-sm">
-                        {% if record.status %}
-                            <span class="px-2 py-1 text-xs font-medium rounded-full
-                                {% if record.status == 'Done' %}bg-green-100 text-green-800
-                                {% elif record.status == 'Deal' %}bg-blue-100 text-blue-800
-                                {% elif record.status == 'Plan A' %}bg-yellow-100 text-yellow-800
-                                {% elif record.status == 'Plan B' %}bg-orange-100 text-orange-800
-                                {% elif record.status == 'Research' %}bg-purple-100 text-purple-800
-                                {% elif record.status == 'Code' %}bg-gray-100 text-gray-800
-                                {% elif record.status == 'Fail' %}bg-red-100 text-red-800
-                                {% else %}bg-gray-100 text-gray-800{% endif %}">{{ record.status }}</span>
-                        {% endif %}
-                    </td>
+                    <td class="px-3 py-3 text-sm text-gray-900">{{ record.person_in_charge or '' }}</td>
                     <td class="px-3 py-3 text-sm">
                         {% if record.cooperation_status %}
                             <span class="px-2 py-1 text-xs rounded-full {% if 'Đã' in record.cooperation_status %}bg-emerald-100 text-emerald-700{% else %}bg-slate-100 text-slate-600{% endif %}">{{ record.cooperation_status }}</span>
                         {% endif %}
                     </td>
-                    <td class="px-3 py-3 text-sm text-gray-900">{{ record.person_in_charge or '' }}</td>
+                    <td class="px-3 py-3 text-sm">
+                        {% set st = record.led_status if view_type == 'led' else record.status %}
+                        {% if st %}
+                            <span class="px-2 py-1 text-xs font-medium rounded-full
+                                {% if st == 'Done' %}bg-green-100 text-green-800
+                                {% elif st == 'Deal' %}bg-blue-100 text-blue-800
+                                {% elif st == 'Plan A' %}bg-yellow-100 text-yellow-800
+                                {% elif st == 'Plan B' %}bg-orange-100 text-orange-800
+                                {% elif st == 'Research' %}bg-purple-100 text-purple-800
+                                {% elif st == 'Fail' %}bg-red-100 text-red-800
+                                {% else %}bg-gray-100 text-gray-800{% endif %}">{{ st }}</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-3 py-3 text-sm text-gray-900">{{ record.city or '' }}</td>
+                    <td class="px-3 py-3 text-sm text-gray-900">{{ record.ward or '' }}</td>
+                    <td class="px-3 py-3 text-sm text-gray-900">{{ record.level or '' }}</td>
+                    <td class="px-3 py-3 text-sm text-gray-900 font-medium max-w-xs">{{ record.school_name or '' }}</td>
+                    <td class="px-3 py-3 text-sm text-gray-900 max-w-[150px] truncate" title="{{ record.address or '' }}">{{ record.address or '' }}</td>
                     <td class="px-3 py-3 text-sm text-gray-900">{{ record.csvc or '' }}</td>
+                    <td class="px-3 py-3 text-sm text-gray-900">{{ record.student_count or '' }}</td>
                     <td class="px-3 py-3 text-sm text-gray-900">{{ record.brand_strength or '' }}</td>
-                    <td class="px-3 py-3 text-sm text-gray-900 text-center">{{ record.num_elevators if record.num_elevators is not none else '' }}</td>
-                    <td class="px-3 py-3 text-sm text-gray-900 text-center">{{ record.screens_in_elevator if record.screens_in_elevator is not none else '' }}</td>
+                    
+                    {% if view_type == 'led' %}
                     <td class="px-3 py-3 text-sm text-gray-900 text-center">{{ record.led_screens if record.led_screens is not none else '' }}</td>
+                    {% else %}
+                    <td class="px-3 py-3 text-sm text-gray-900 text-center">{{ record.num_elevators if record.num_elevators is not none else '' }}</td>
                     <td class="px-3 py-3 text-sm font-semibold text-gray-900 text-center">{{ record.total_screens or 0 }}</td>
+                    <td class="px-3 py-3 text-sm text-gray-900 text-center">{{ record.screens_before_elevator if record.screens_before_elevator is not none else '' }}</td>
+                    <td class="px-3 py-3 text-sm text-gray-900 text-center">{{ record.screens_in_elevator if record.screens_in_elevator is not none else '' }}</td>
+                    <td class="px-3 py-3 text-sm text-gray-900 text-center">{{ record.screens_stairs if record.screens_stairs is not none else '' }}</td>
+                    <td class="px-3 py-3 text-sm text-gray-900 text-center">{{ record.gp_count if record.gp_count is not none else '' }}</td>
+                    {% endif %}
+                    
+                    <td class="px-3 py-3 text-sm text-gray-900 max-w-[120px] truncate" title="{{ record.contact_info or '' }}">{{ record.contact_info or '' }}</td>
                     <td class="px-3 py-3 whitespace-nowrap text-sm">
                         <div class="flex gap-2">
                             <a href="{{ url_for('edit_record', id=record.id) }}" class="text-indigo-600 hover:text-indigo-800 font-medium">Sửa</a>
@@ -153,7 +174,7 @@
                     </td>
                 </tr>
                 {% else %}
-                <tr><td colspan="15" class="px-4 py-8 text-center text-gray-500">Không có dữ liệu</td></tr>
+                <tr><td colspan="20" class="px-4 py-8 text-center text-gray-500">Không có dữ liệu</td></tr>
                 {% endfor %}
             </tbody>
         </table>
