@@ -49,11 +49,12 @@
     </div>
 
     <div>
-        <h2 class="text-lg font-bold text-gray-800 mb-3">Địa điểm</h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <h2 class="text-lg font-bold text-gray-800 mb-3">Địa điểm & Liên hệ</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {{ field('TP/Tỉnh', 'city', record.city if record else '') }}
             {{ field('Xã/Phường', 'ward', record.ward if record else '') }}
             {{ field('Địa chỉ', 'address', record.address if record else '') }}
+            {{ field('Thông tin liên hệ', 'contact_info', record.contact_info if record else '') }}
         </div>
     </div>
 

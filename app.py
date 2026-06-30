@@ -84,6 +84,7 @@ SEED_COLUMNS = {
     0: 'stt', 1: 'person_in_charge', 2: 'cooperation_status',
     3: 'status', 4: 'led_status', 5: 'approach_time',
     6: 'city', 7: 'ward', 8: 'level', 9: 'school_name', 10: 'address',
+    11: 'contact_info',
     12: 'price_range', 13: 'csvc', 14: 'student_count', 15: 'brand_strength',
     16: 'other_unit', 17: 'other_unit_screens', 18: 'num_elevators',
     19: 'total_screens', 20: 'screens_before_elevator', 21: 'screens_in_elevator',
@@ -144,8 +145,6 @@ DASHBOARD_PERSONS = [
     ('Vinh Phú', 'VINH PHÚ', 'BD Host'),
     ('Duy Khánh', 'DUY KHÁNH', 'BD Host'),
     ('Ngọc Dũng', 'NGỌC DŨNG', 'BD Host'),
-    ('Tân Đức', 'TÂN ĐỨC', 'BD Host'),
-    ('Triều Vỹ', 'TRIỀU VỸ', 'BD Host'),
 ]
 
 
@@ -156,7 +155,9 @@ def _screen_progress():
     sum_target = 0
     for reg in ('MB', 'MN'):
         done = db.session.query(
-            db.func.coalesce(db.func.sum(UniversityRecord.total_screens), 0)
+            db.func.sum(
+                db.func.coalesce(UniversityRecord.total_screens, 0) - db.func.coalesce(UniversityRecord.led_screens, 0)
+            )
         ).filter(
             UniversityRecord.region == reg,
             UniversityRecord.status.in_(SCREEN_STAGES),
@@ -171,6 +172,27 @@ def _screen_progress():
         'MB': regions['MB'],
         'MN': regions['MN'],
         'SUM': {'done': sum_done, 'target': sum_target},
+    }
+
+def _led_progress():
+    """LED progress (sum of led_screens for deals/done) vs dummy target if needed, or just sums."""
+    regions = {}
+    sum_done = 0
+    for reg in ('MB', 'MN'):
+        done = db.session.query(
+            db.func.sum(db.func.coalesce(UniversityRecord.led_screens, 0))
+        ).filter(
+            UniversityRecord.region == reg,
+            UniversityRecord.status.in_(SCREEN_STAGES),
+        ).scalar() or 0
+        done = int(done)
+        regions[reg] = {'done': done, 'target': 0}
+        sum_done += done
+    return {
+        'name': 'Mục tiêu LED',
+        'MB': regions['MB'],
+        'MN': regions['MN'],
+        'SUM': {'done': sum_done, 'target': 0},
     }
 
 
@@ -435,6 +457,7 @@ def _record_from_form(rec, form):
     rec.level = form.get('level') or None
     rec.school_name = form.get('school_name') or None
     rec.address = form.get('address') or None
+    rec.contact_info = form.get('contact_info') or None
     rec.price_range = form.get('price_range') or None
     rec.csvc = form.get('csvc') or None
     rec.student_count = form.get('student_count') or None
@@ -641,6 +664,7 @@ def api_stats():
         'person_progress': _compute_person_progress(),
         'weekly_growth': _weekly_growth_series(),
         'screen_progress': _screen_progress(),
+        'led_progress': _led_progress(),
         'funnel_stages': FUNNEL_STAGES,
         'status': [{'label': s[0], 'count': s[1]} for s in status_stats if s[0]],
         'city': [{'label': c[0], 'count': c[1]} for c in city_stats][:10],
@@ -668,6 +692,7 @@ EXPORT_COLUMNS = [
     ('level', 'Hệ'),
     ('school_name', 'Tên trường học'),
     ('address', 'Địa chỉ'),
+    ('contact_info', 'Thông tin liên hệ'),
     ('price_range', 'Giá bán'),
     ('csvc', 'CSVC'),
     ('student_count', 'Số lượng sinh viên'),

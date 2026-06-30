@@ -21,6 +21,7 @@ class UniversityRecord(db.Model):
     level = db.Column(db.String(50), index=True)                    # HỆ: Đại học / Cao đẳng / Học viện
     school_name = db.Column(db.String(255))                         # Tên trường học
     address = db.Column(db.String(255))                             # Địa chỉ
+    contact_info = db.Column(db.String(255))                        # Thông tin liên hệ
     price_range = db.Column(db.String(100))                         # Giá bán
     csvc = db.Column(db.String(50))                                 # CSVC: Premium / Standard / Substandard
     student_count = db.Column(db.String(50))                        # Số lượng sinh viên: High / Middle / Low
@@ -55,6 +56,7 @@ class UniversityRecord(db.Model):
             "level": self.level,
             "school_name": self.school_name,
             "address": self.address,
+            "contact_info": self.contact_info,
             "price_range": self.price_range,
             "csvc": self.csvc,
             "student_count": self.student_count,

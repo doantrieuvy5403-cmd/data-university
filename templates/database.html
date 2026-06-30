@@ -95,6 +95,7 @@
                     <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Hệ</th>
                     <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Phường/Xã</th>
                     <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Thành phố</th>
+                    <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Liên hệ</th>
                     <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tiến độ</th>
                     <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Hợp tác</th>
                     <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Phụ trách</th>
@@ -115,6 +116,7 @@
                     <td class="px-3 py-3 text-sm text-gray-900">{{ record.level or '' }}</td>
                     <td class="px-3 py-3 text-sm text-gray-900">{{ record.ward or '' }}</td>
                     <td class="px-3 py-3 text-sm text-gray-900">{{ record.city or '' }}</td>
+                    <td class="px-3 py-3 text-sm text-gray-900 max-w-[120px] truncate" title="{{ record.contact_info or '' }}">{{ record.contact_info or '' }}</td>
                     <td class="px-3 py-3 text-sm">
                         {% if record.status %}
                             <span class="px-2 py-1 text-xs font-medium rounded-full
